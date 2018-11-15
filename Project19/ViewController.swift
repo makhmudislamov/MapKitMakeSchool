@@ -11,7 +11,7 @@ import MapKit
 
 
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, MKMapViewDelegate {
     
     @IBOutlet weak var map: MKMapView!
     
@@ -34,7 +34,44 @@ class ViewController: UIViewController {
         map.addAnnotation(washington)
     }
 
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        // 1
+        let identifier = "Capital"
+        
+        // 2
+        if annotation is Capital {
+            // 3
+            var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+            
+            if annotationView == nil {
+                //4
+                annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                annotationView!.canShowCallout = true
+                
+                // 5
+                let btn = UIButton(type: .detailDisclosure)
+                annotationView!.rightCalloutAccessoryView = btn
+            } else {
+                // 6
+                annotationView!.annotation = annotation
+            }
+            
+            return annotationView
+        }
+        
+        // 7
+        return nil
+    }
     
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        let capital = view.annotation as! Capital
+        let placeName = capital.title
+        let placeInfo = capital.info
+        
+        let ac = UIAlertController(title: placeName, message: placeInfo, preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "OK", style: .default))
+        present(ac, animated: true)
+    }
 
 }
 
